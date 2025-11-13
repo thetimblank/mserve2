@@ -2,11 +2,7 @@
 
 a CLI tool that helps manage and setup minecraft servers easily with simple customizations.
 
-**⚠️ This tool is being deprecated in favor of mserve3.**
-
 ## todo
-
-this will not be finished- use mserve3 instead
 
 ✅ help
 ✅ docs

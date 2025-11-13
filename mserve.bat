@@ -6,10 +6,10 @@
 @echo off
 setlocal
 
-set "_exe=%~dp0src/index.js"
+set "_exe=%~dp0src/index.ts"
 
 if not exist "%_exe%" (
   set "_exe=%~dp0mserve_install.msi"
 )
 
-node %_exe% %*
+ts-node %_exe% %*
