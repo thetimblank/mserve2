@@ -93,6 +93,13 @@ const start = async (directory: string) => {
 
 	const autobackup = intervalBackup(directory, storage);
 
+	let default_smart_flags = [];
+
+	if (storage.file.includes('paper') || storage.file.includes('spigot') || storage.file.includes('bukkit')) {
+		default_smart_flags.push('0');
+		default_smart_flags.push('--nogui');
+	}
+
 	const runner = spawn(
 		`java`,
 		[
@@ -100,11 +107,10 @@ const start = async (directory: string) => {
 			`-Xmx${storage.ram ?? 3}G`,
 			'-jar',
 			`${storage.file ?? 'server.jar'}`,
-			...(storage.custom_flags ?? []),
+			...(storage.custom_flags ?? default_smart_flags),
 		],
 		{
 			cwd: directory,
-			shell: true,
 			stdio: 'inherit',
 		}
 	);

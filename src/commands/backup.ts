@@ -24,7 +24,11 @@ const getWorlds = (directory: string) => {
 	});
 
 	if (worlds.length <= 0) {
-		console.log(chalk.red('\nThere are no worlds in this server. (Make sure theres a `level.dat`!)'));
+		console.log(
+			chalk.red(
+				'\nFailed to backup: There are no worlds in this server. (Make sure theres a `level.dat`!)'
+			)
+		);
 		return null;
 	}
 

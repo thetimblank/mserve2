@@ -77,6 +77,7 @@ const completeForm = async (directory: string) => {
 
 	const auto_restart = await confirm({
 		message: 'Do you want the server to automatically restart when it closes?',
+		default: false,
 	});
 
 	console.log(
@@ -99,6 +100,14 @@ const completeForm = async (directory: string) => {
 		});
 	}
 
+	const auto_agree_eula = await confirm({
+		message: 'Do you want to auto agree to the eula.txt?',
+	});
+
+	if (auto_agree_eula) {
+		generateAndAgreeEula(directory);
+	}
+
 	const form: Form = {
 		auto_backup: auto_backup,
 		ram: Number(ram),
@@ -111,8 +120,6 @@ const completeForm = async (directory: string) => {
 
 	await initializeServer(form);
 };
-
-// TODO: make a function that will attempt to automatically move the server jar file (collected from form andcalled in initilaizeServer). check the users downloads. if unsuccessfull simply put couldnt move automove file
 
 const initializeServer = async (form: Form) => {
 	const spinner = createSpinner(`${chalk.gray(`Creating mserve.json...`)}`).start();
@@ -194,3 +201,37 @@ const Init = async (args: Args) => {
 };
 
 export default Init;
+
+const generateAndAgreeEula = (directory: string) => {
+	// produce a date string in the same format as Java's Date.toString(): "Thu Nov 13 20:26:38 EST 2025"
+	const date = new Date();
+	const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	const pad = (n: number) => n.toString().padStart(2, '0');
+
+	const tz = (() => {
+		try {
+			const parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(date);
+			return parts.find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
+		} catch {
+			return 'GMT';
+		}
+	})();
+
+	const dateStr = `${days[date.getDay()]} ${months[date.getMonth()]} ${pad(date.getDate())} ${pad(
+		date.getHours()
+	)}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${tz} ${date.getFullYear()}`;
+
+	const content =
+		[
+			'#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).',
+			`#${dateStr}`,
+			'eula=true',
+		].join('\n') + '\n';
+
+	try {
+		fs.writeFileSync(path.join(directory, 'eula.txt'), content, 'utf8');
+	} catch (err) {
+		console.error(chalk.red('Failed to write eula.txt'), err);
+	}
+};
